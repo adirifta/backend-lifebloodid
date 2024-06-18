@@ -1,15 +1,21 @@
 const db = require('../helpers/db');
-const { hashPassword, comparePasswords, generateToken } = require('../helpers/auth');
+const { hashPassword, comparePasswords, generateToken, validateEmail } = require('../helpers/auth');
 
 const register = async (req, res) => {
-    const { username, password } = req.body;
+    const { username, email, password } = req.body;
+
+    // Validate email
+    if (!validateEmail(email)) {
+        return res.status(400).json({ message: 'Invalid email format. Only Gmail addresses are allowed.' });
+    }
 
     try {
         // Hash the password
         const hashedPassword = await hashPassword(password);
 
-        const [rows, fields] = await db.execute('INSERT INTO users (username, password) VALUES (?, ?)', [
+        const [rows, fields] = await db.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [
             username,
+            email,
             hashedPassword
         ]);
 
@@ -24,11 +30,13 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-    const { username, password } = req.body;
+    const { credential, password } = req.body;
 
     try {
-        // Get user from database
-        const [rows, fields] = await db.execute('SELECT * FROM users WHERE username = ?', [username]);
+        // Determine if the credential is an email or username
+        const isEmail = validateEmail(credential);
+        const query = isEmail ? 'SELECT * FROM users WHERE email = ?' : 'SELECT * FROM users WHERE username = ?';
+        const [rows, fields] = await db.execute(query, [credential]);
 
         if (rows.length === 0) {
             return res.status(401).json({ message: 'Invalid credentials' });

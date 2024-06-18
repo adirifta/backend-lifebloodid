@@ -14,8 +14,14 @@ const comparePasswords = async (password, hashedPassword) => {
     return bcrypt.compare(password, hashedPassword);
 };
 
+const validateEmail = (email) => {
+    const regex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    return regex.test(email);
+};
+
 module.exports = {
     generateToken,
     hashPassword,
-    comparePasswords
+    comparePasswords,
+    validateEmail
 };
