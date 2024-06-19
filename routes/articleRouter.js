@@ -1,14 +1,18 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const articleController = require('../controllers/articleController');
-
 const router = express.Router();
-router.use(bodyParser.json());
+const {
+    getAllArticles,
+    getArticleById,
+    createArticle,
+    updateArticle,
+    deleteArticle
+} = require('../controllers/articleController');
+const upload = require('../middleware/upload');
 
-router.get('/articles', articleController.getAllArticles);
-router.get('/articles/:id', articleController.getArticleById);
-router.post('/articles', articleController.createArticle);
-router.put('/articles/:id', articleController.updateArticle);
-router.delete('/articles/:id', articleController.deleteArticle);
+router.get('/articles', getAllArticles);
+router.get('/articles/:id', getArticleById);
+router.post('/articles', upload.single('image'), createArticle);
+router.put('/articles/:id', upload.single('image'), updateArticle);
+router.delete('/articles/:id', deleteArticle);
 
 module.exports = router;

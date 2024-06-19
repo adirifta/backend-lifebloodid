@@ -1,5 +1,5 @@
-const db = require('../helpers/db');
-const { hashPassword, comparePasswords, generateToken, validateEmail } = require('../helpers/auth');
+const db = require('../database/db');
+const { hashPassword, comparePasswords, generateToken, validateEmail } = require('../middleware/auth');
 
 const register = async (req, res) => {
     const { username, email, password } = req.body;
@@ -21,7 +21,6 @@ const register = async (req, res) => {
 
         // Generate JWT token
         const token = generateToken(rows.insertId);
-
         res.status(201).json({ message: 'User registered successfully', token });
     } catch (error) {
         console.error('Error registering user:', error);
